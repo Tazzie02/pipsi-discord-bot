@@ -1,5 +1,6 @@
 package net.pipsi.java.pipsidiscordbot;
 
+import com.tazzie02.tazbotdiscordlib.Command;
 import com.tazzie02.tazbotdiscordlib.CommandRegistry;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLib;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLibBuilder;
@@ -19,7 +20,7 @@ public class TDLBot {
 
     private final TazbotDiscordLib tdl;
 
-    public TDLBot(String token, Path configPath) throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException {
+    public TDLBot(String token, Path configPath, Command[] commands) throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException {
         TazbotDiscordLibBuilder builder = new TazbotDiscordLibBuilder(token);
         // Set the location files will be stored
         builder.setFilePath(configPath);
@@ -41,20 +42,21 @@ public class TDLBot {
         // Set the CommandSettings for all
         registry.setDefaultCommandSettings(filesInstance);
 
-        registerCommands(registry);
+        registerCommands(registry, commands);
 
         // Add the CommandRegistry to the TazbotDiscordLib object
         tdl.addListener(registry);
     }
 
-    private void registerCommands(CommandRegistry registry) {
+    private void registerCommands(CommandRegistry registry, Command[] commands) {
         // Commands provided by TDL
         registry.registerCommand(new HelpCommand(registry));
         registry.registerCommand(new PingCommand());
         registry.registerCommand(new ShutdownCommand());
 
-        // General commands
-        registry.registerCommand(new ServersCommand());
+        for (Command command : commands) {
+            registry.registerCommand(command);
+        }
     }
 
     public JDA getJDA() {
